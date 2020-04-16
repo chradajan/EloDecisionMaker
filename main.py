@@ -1,8 +1,6 @@
 import math
 from random import sample
 from tkinter import *
-from os import path
-#import tkinter as tk
 
 k = 32
 
