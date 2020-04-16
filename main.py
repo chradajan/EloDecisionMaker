@@ -111,6 +111,7 @@ class GUI:
         self.hideScores = IntVar()
         self.hideOrder = IntVar()
         self.hideAll = IntVar()
+        self.saveOnExit = IntVar()
         master.title("Elo Ranker")
         master.iconbitmap("dog.ico")
 
@@ -124,7 +125,6 @@ class GUI:
 
         #Text Box
         self.ranking = Text(master, height = ranker.itemCount(), width = ranker.getLongestItemName() + 15, state = DISABLED)
-        # self.ranking.grid(row = 2, columnspan = 2, sticky = N + S + W + E)
         self.ranking.grid(row = 1, column = 0, sticky = N + S + W + E)
         self.ranking.tag_configure("center", justify = "center")
         self.updateRanks()
@@ -140,12 +140,11 @@ class GUI:
         self.hideScoresButton = Checkbutton(self.optionsFrame, text = 'Hide Scores', variable = self.hideScores, command = self.updateRanks)
         self.hideOrderButton = Checkbutton(self.optionsFrame, text = 'Hide Order  ', variable = self.hideOrder, command = self.updateRanks)
         self.hideAllButton = Checkbutton(self.optionsFrame, text = 'Hide List      ', variable = self.hideAll, command = self.hideAllFunction)
+        self.saveOnExitButton = Checkbutton(self.optionsFrame, text = 'Save on Exit', variable = self.saveOnExit)
         self.hideScoresButton.pack()
         self.hideOrderButton.pack()
         self.hideAllButton.pack()
-
-        self.saveLabel = Label(self.optionsFrame, text = 'Save/Load to File')
-        self.saveLabel.pack()
+        self.saveOnExitButton.pack()
 
         #Save Buttons
         self.saveLoadFrame = Frame(self.optionsFrame)
@@ -175,6 +174,9 @@ class GUI:
     def reset(self):
         self.ranker.reset()
         self.updateRanks()
+
+    def getSaveOnExit(self):
+        return self.saveOnExit.get() == 1
 
     def hideAllFunction(self):
         if self.hideAll.get() == 1: #Button turned on
@@ -228,4 +230,6 @@ if __name__ == "__main__":
     root = Tk()
     gui = GUI(root, ranker)
     root.mainloop()
-    ranker.save()
+
+    if gui.getSaveOnExit():
+        ranker.save()
