@@ -1,6 +1,7 @@
 import math
 from random import sample
 from tkinter import *
+from os import path
 #import tkinter as tk
 
 k = 32
@@ -22,6 +23,25 @@ class Ranking:
             if len(item) > self.longestItemName:
                 self.longestItemName = len(item)
 
+    def save(self):
+        dataFile = open("data.txt", "w")
+        for item in self.itemsDict.keys():
+            dataFile.write("{itm} {scr}\n".format(itm = item, scr = self.itemsDict[item]))
+        dataFile.close()
+
+    def load(self):
+        self.itemsDict.clear()
+        dataFile = open("data.txt", "r")
+        for entry in dataFile:
+            entryList = entry.split()
+            itemName = ' '.join(entryList[0:-1])
+            self.itemsDict[itemName] = int(entryList[-1])
+        dataFile.close()
+
+    def reset(self):
+        for item in self.itemsDict.keys():
+            self.itemsDict[item] = 1500
+    
     def itemCount(self):
         return len(self.itemsDict)
 
@@ -63,7 +83,7 @@ class Ranking:
 
     def nextMatchup(self):
         matchup = sample(self.itemsDict.keys(), 2)
-        
+
         while (matchup[0] in self.lastMatchup and matchup[1] in self.lastMatchup):
             matchup = sample(self.itemsDict.keys(), 2)
 
@@ -94,6 +114,7 @@ class GUI:
         self.hideOrder = IntVar()
         self.hideAll = IntVar()
         master.title("Elo Ranker")
+        master.iconbitmap("dog.ico")
 
         #Left Button
         self.leftButton = Button(master, text = "", command = self.left)
@@ -117,13 +138,29 @@ class GUI:
         self.optionsLabel = Label(self.optionsFrame, text = 'Options')
         self.optionsLabel.pack()
 
+        #Display Options
         self.hideScoresButton = Checkbutton(self.optionsFrame, text = 'Hide Scores', variable = self.hideScores, command = self.updateRanks)
         self.hideOrderButton = Checkbutton(self.optionsFrame, text = 'Hide Order  ', variable = self.hideOrder, command = self.updateRanks)
         self.hideAllButton = Checkbutton(self.optionsFrame, text = 'Hide List      ', variable = self.hideAll, command = self.hideAllFunction)
         self.hideScoresButton.pack()
         self.hideOrderButton.pack()
         self.hideAllButton.pack()
-        
+
+        self.saveLabel = Label(self.optionsFrame, text = 'Save/Load to File')
+        self.saveLabel.pack()
+
+        #Save Buttons
+        self.saveLoadFrame = Frame(self.optionsFrame)
+        self.saveLoadFrame.pack()
+
+        self.saveButton = Button(self.saveLoadFrame, padx = 20, text = 'Save', command = self.ranker.save)
+        self.saveButton.grid(row = 0, column = 0, sticky = N + S + W + E)
+
+        self.loadButton = Button(self.saveLoadFrame, padx = 20, text = 'Load', command = self.load)
+        self.loadButton.grid(row = 0, column = 1, sticky = N + S + W + E)
+
+        self.resetButton = Button(self.saveLoadFrame, padx = 20, text = 'Reset', command = self.reset)
+        self.resetButton.grid(row = 0, column = 2, sticky = N + S + W + E)
 
         #Grid Configuration
         self.master.grid_columnconfigure(0, weight = 1, uniform = 'half')
@@ -132,6 +169,14 @@ class GUI:
         self.master.grid_rowconfigure(1, weight = 1)
 
         self.updateButtons()
+
+    def load(self):
+        self.ranker.load()
+        self.updateRanks()
+
+    def reset(self):
+        self.ranker.reset()
+        self.updateRanks()
 
     def hideAllFunction(self):
         if self.hideAll.get() == 1: #Button turned on
@@ -185,3 +230,4 @@ if __name__ == "__main__":
     root = Tk()
     gui = GUI(root, ranker)
     root.mainloop()
+    ranker.save()
