@@ -1,22 +1,28 @@
 import math
 from random import sample
 from tkinter import *
+from PIL import Image, ImageTk
 from villager import Villager
 
 k = 32
 
 class Ranking:
-
     itemsDict = {}
+    villagers = {}
     lastMatchup = []
     longestItemName = 0
     left = ""
     right = ""
 
     def __init__(self):
-        reader = open("items.txt", "r")
-        for i in reader:
-            self.itemsDict[i.rstrip()] = 1500
+        file = open('villagers/villagers.txt', 'r')
+        lines = file.readlines()
+
+        for i in range(0, len(lines), 7):
+            self.villagers[lines[i].rstrip()] = Villager(lines[i].rstrip(), lines[i+1].rstrip(), lines[i+2].rstrip(), lines[i+3].rstrip(), lines[i+4].rstrip(), lines[i+5].rstrip())
+
+        for name in self.villagers.keys():
+            self.itemsDict[name] = 1500
 
         for item in self.itemsDict.keys():
             if len(item) > self.longestItemName:
@@ -79,7 +85,6 @@ class Ranking:
 
         return returnString
 
-
     def nextMatchup(self):
         matchup = sample(self.itemsDict.keys(), 2)
 
@@ -89,7 +94,10 @@ class Ranking:
         self.lastMatchup = matchup
         self.left = matchup[0]
         self.right = matchup[1]
-        return matchup
+
+        matchupWithPaths = (matchup, [self.villagers[matchup[0]].getPath(), self.villagers[matchup[1]].getPath()])
+
+        return matchupWithPaths
 
     def calculateResult(self, result):
         if result == "left":
@@ -117,23 +125,27 @@ class GUI:
         master.iconbitmap("dog.ico")
 
         #Left Button
-        self.leftButton = Button(master, text = "", command = self.left)
+        self.leftButton = Button(master, text = "", compound = LEFT, command = self.left)
         self.leftButton.grid(row = 0, column = 0, sticky = N + S + W + E)
 
         #Right Button
-        self.rightButton = Button(master, text = "", command = self.right)
+        self.rightButton = Button(master, text = "", compound = LEFT, command = self.right)
         self.rightButton.grid(row = 0, column = 1, sticky = N + S + W + E)
 
         #Text Box
-        self.ranking = Text(master, height = ranker.itemCount(), width = ranker.getLongestItemName() + 15, state = DISABLED)
-        self.ranking.grid(row = 1, column = 0, sticky = N + S + W + E)
+        self.textFrame = Frame(master)
+        self.textFrame.grid(row = 1, column = 0, sticky = N + W + E + S)
+        self.scroll = Scrollbar(self.textFrame)
+        self.scroll.pack(side = RIGHT, fill = Y)
+        self.ranking = Text(self.textFrame, yscrollcommand = self.scroll.set, height = 20, width = ranker.getLongestItemName() + 15, state = DISABLED)
+        self.ranking.pack(fill = X)
         self.ranking.tag_configure("center", justify = "center")
+        self.scroll.config(command = self.ranking.yview)
         self.updateRanks()
 
         #Menu
         self.optionsFrame = Frame(master)
         self.optionsFrame.grid(row = 1, column = 1, sticky = N + S + W + E)
-
         self.optionsLabel = Label(self.optionsFrame, text = 'Options')
         self.optionsLabel.pack()
 
@@ -204,9 +216,13 @@ class GUI:
         self.updateRanks()
 
     def updateButtons(self):
-        newItems = self.ranker.nextMatchup()
-        self.leftButton.config(text = newItems[0])
-        self.rightButton.config(text = newItems[1])
+        nextMatchup = self.ranker.nextMatchup()
+        left = Image.open(nextMatchup[1][0]).resize((256,256), Image.ANTIALIAS)
+        right = Image.open(nextMatchup[1][1]).resize((256,256), Image.ANTIALIAS)
+        self.leftImg = ImageTk.PhotoImage(left)
+        self.rightImg = ImageTk.PhotoImage(right)
+        self.leftButton.config(text = nextMatchup[0][0], image = self.leftImg)
+        self.rightButton.config(text = nextMatchup[0][1], image = self.rightImg)
 
     def updateRanks(self):
         self.ranking['state'] = NORMAL
@@ -228,15 +244,9 @@ class GUI:
 
 if __name__ == "__main__":
     ranker = Ranking()
-    # root = Tk()
-    # gui = GUI(root, ranker)
-    # root.mainloop()
+    root = Tk()
+    gui = GUI(root, ranker)
+    root.mainloop()
 
-    # if gui.getSaveOnExit():
-    #     ranker.save()
-    villagers = []
-    file = open('villagers/villagers.txt', 'r')
-    lines = file.readlines()
-
-    for i in range(0, len(lines), 7):
-        villagers.append(Villager(lines[i].rstrip(), lines[i+1].rstrip(), lines[i+2].rstrip(), lines[i+3].rstrip(), lines[i+4].rstrip(), lines[i+5].rstrip()))
+    if gui.getSaveOnExit():
+        ranker.save()
