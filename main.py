@@ -1,6 +1,7 @@
 import math
 from random import sample
 from tkinter import *
+from villager import Villager
 
 k = 32
 
@@ -227,9 +228,15 @@ class GUI:
 
 if __name__ == "__main__":
     ranker = Ranking()
-    root = Tk()
-    gui = GUI(root, ranker)
-    root.mainloop()
+    # root = Tk()
+    # gui = GUI(root, ranker)
+    # root.mainloop()
 
-    if gui.getSaveOnExit():
-        ranker.save()
+    # if gui.getSaveOnExit():
+    #     ranker.save()
+    villagers = []
+    file = open('villagers/villagers.txt', 'r')
+    lines = file.readlines()
+
+    for i in range(0, len(lines), 7):
+        villagers.append(Villager(lines[i].rstrip(), lines[i+1].rstrip(), lines[i+2].rstrip(), lines[i+3].rstrip(), lines[i+4].rstrip(), lines[i+5].rstrip()))

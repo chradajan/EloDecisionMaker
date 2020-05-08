@@ -7,6 +7,7 @@ currentName = ''
 def getName(decodedLine):
     result = re.search(r"title=\"(\w+ ?'?-?\w+)", decodedLine)
     name = result.group(1)
+    print(name)
     return name
 
 def getImage(decodedLine, name):
@@ -19,21 +20,25 @@ def getImage(decodedLine, name):
 def getPersonality(decodedLine):
     result = re.search(r"a href=\"/wiki/(\w+)\"", decodedLine)
     personality = result.group(1)
+    print(personality)
     return personality
 
 def getSpecies(decodedLine):
     result = re.search(r"a href=\"/wiki/([a-zA-Z]+).*\" title", decodedLine)
     species = result.group(1)
+    print(species)
     return species
 
 def getBirthday(decodedLine):
     result = re.search(r"> +(\w+ \d\d?)<", decodedLine)
     birthday = result.group(1)
+    print(birthday)
     return birthday
 
 def getCatchphrase(decodedLine):
     result = re.search(r"<i> ?\"(.*)\" ?</i>", decodedLine)
     catchphrase = result.group(1)
+    print(catchphrase + '\n')
     return catchphrase
 
 def parser():
