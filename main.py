@@ -85,6 +85,9 @@ class Ranking:
 
         return returnString
 
+    def getText(self, name):
+        return str(self.villagers[name])
+
     def nextMatchup(self):
         matchup = sample(self.itemsDict.keys(), 2)
 
@@ -122,14 +125,14 @@ class GUI:
         self.hideAll = IntVar()
         self.saveOnExit = IntVar()
         master.title("Elo Ranker")
-        master.iconbitmap("dog.ico")
+        master.iconbitmap("icon.ico")
 
         #Left Button
-        self.leftButton = Button(master, text = "", compound = LEFT, command = self.left)
+        self.leftButton = Button(master, text = "", compound = TOP, command = self.left)
         self.leftButton.grid(row = 0, column = 0, sticky = N + S + W + E)
 
         #Right Button
-        self.rightButton = Button(master, text = "", compound = LEFT, command = self.right)
+        self.rightButton = Button(master, text = "", compound = TOP, command = self.right)
         self.rightButton.grid(row = 0, column = 1, sticky = N + S + W + E)
 
         #Text Box
@@ -221,8 +224,10 @@ class GUI:
         right = Image.open(nextMatchup[1][1]).resize((256,256), Image.ANTIALIAS)
         self.leftImg = ImageTk.PhotoImage(left)
         self.rightImg = ImageTk.PhotoImage(right)
-        self.leftButton.config(text = nextMatchup[0][0], image = self.leftImg)
-        self.rightButton.config(text = nextMatchup[0][1], image = self.rightImg)
+        leftText = self.ranker.getText(nextMatchup[0][0])
+        rightText = self.ranker.getText(nextMatchup[0][1])
+        self.leftButton.config(text = leftText, image = self.leftImg)
+        self.rightButton.config(text = rightText, image = self.rightImg)
 
     def updateRanks(self):
         self.ranking['state'] = NORMAL

@@ -21,7 +21,7 @@ class Villager:
         return self.photoPath
 
     def __str__(self):
-        return "{}\n{}\n{}\n{}\n{}".format(self.name, self.personality, self.species, self.birthday, self.catchphrase)
+        return '{}\n{}, {}, {}\n"{}"'.format(self.name, self.personality, self.species, self.birthday, self.catchphrase)
 
     def __len__(self):
         return len(self.getName())
